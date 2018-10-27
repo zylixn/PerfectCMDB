@@ -68,3 +68,20 @@ class ServerDetail(DetailView):
             msg = "It's a test"
             return JsonResponse({'status':True,'message':msg})
 
+class AssetReport(TemplateView):
+
+    def post(self,request,*args,**kwargs):
+        asset_data = request.POST.get("asset_data")
+        if asset_data:
+            asset_data = json.dumps(asset_data)
+            print("Recv data ",asset_data)
+            asset_id = asset_data.get("asset_id")
+            if asset_id:
+                # 将带有id的资产信息入到相应的表里面
+                pass
+            else:
+                # 将没有id的资产入到待审批的表里面
+                pass
+
+
+

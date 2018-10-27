@@ -45,7 +45,12 @@
     <!--Nifty Admin [ RECOMMENDED ]-->
     <script src="{% static 'js/nifty.min.js' %}"></script>
 
-    
+     <script>
+            function ActiveMenu(ele) {
+                $(ele).siblings('li').removeClass('active-link');
+                $(ele).addClass('active-link');
+            }
+      </script>
     <!--=================================================
 
     REQUIRED
@@ -68,12 +73,7 @@
     {% endblock %}
 
     {% block extra_js %}
-        <script>
-            function ActiveMenu(ele) {
-                $(ele).siblings('li').removeClass('active-link');
-                $(ele).addClass('active-link');
-            }
-        </script>
+
     {% endblock %}
 
 </head>
@@ -184,9 +184,9 @@
                                                     <a href="#" class="media">
                                                         <div class="media-left">
 
-                                        <span class="icon-wrap icon-circle bg-primary">
-                                            <i class="ti-layout icon-lg"></i>
-                                        </span>
+														<span class="icon-wrap icon-circle bg-primary">
+															<i class="ti-layout icon-lg"></i>
+														</span>
                                                         </div>
                                                         <div class="media-body">
                                                             <div class="text-nowrap">Circle Icon</div>
@@ -806,6 +806,12 @@
                                     <!--End shortcut buttons-->
 
                                     <ul id="mainnav-menu" class="list-group">
+										<li onclick="ActiveMenu(this)">
+											<a href="#">
+												<i class="ti-book"></i>
+												<span class="menu-title">首页</span>
+											</a>
+										</li>
                                         {% Menus as menus %}
                                         {% for menu,values in menus.items %}
                                             {% if values|length %}

@@ -14,10 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-from cmdb.views import IndexView,ServerList,ServerDetail
+from cmdb.views import IndexView,ServerList,ServerDetail,AssetReport
 
 urlpatterns = [
     path('',IndexView.as_view(),name="crm_index"),
     path('servers/',ServerList.as_view(),name="server_list"),
     path('servers/<int:pk>/',ServerDetail.as_view(),name="serverdetail"),
+    path('/asset/report/',AssetReport.as_view(),name="asset_report_interface"),
 ]
