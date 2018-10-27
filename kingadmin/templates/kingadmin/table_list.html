@@ -1,0 +1,21 @@
+{% extends 'kingadmin/index.html' %}
+{% block extra-css %}
+    <style>
+        a.list-group-item:hover{
+            background-color: #428BCA;
+        }
+    </style>
+{% endblock %}
+{% block right-content-container %}
+    <ol class="breadcrumb">
+      <li><a href="/kingadmin/">Home</a></li>
+      <li class="active"><a href="/kingadmin/{{ app_name }}/">{{ app_name }}</a></li>
+    </ol>
+    <div class="list-group">
+        {% for table in table_list %}
+            <a href="/kingadmin/{{ app_name }}/{{ table }}/" class="list-group-item">
+                {{ table }}
+            </a>
+        {% endfor %}
+    </div>
+{% endblock %}

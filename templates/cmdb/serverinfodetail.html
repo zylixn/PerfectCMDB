@@ -1,0 +1,137 @@
+{% extends 'base_bak.html' %}
+{% load staticfiles %}
+{% block body %}
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">AutoCMDB</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right nav-pills" role="tablist">
+            <li><a href="#" class="active" role="presentation">任务<span class="badge">42</span></a></li>
+            <li><a href="#" role="presentation">通知<span class="badge">2</span></a></li>
+            <li><a href="#" role="presentation">消息<span class="badge">4</span></a></li>
+            <!-- User Account: style can be found in dropdown.less -->
+          <li class="dropdown user user-menu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <img src="{% static 'images/user2-160x160.jpg' %}" class="img-circle" alt="User Image" style="width: 25px;height: 25px;">
+              <span class="hidden-xs">Alexander Pierce</span>
+            </a>
+            <ul class="dropdown-menu">
+              <!-- User image -->
+              <li class="user-header">
+                <img src="{% static 'images/user2-160x160.jpg' %}" class="img-circle" alt="User Image" style="width: 30px;height: 35px;">
+                <p>
+                  Alexander Pierce - Web Developer
+                  <small>Member since Nov. 2012</small>
+                </p>
+              </li>
+              <!-- Menu Body -->
+              <li class="user-body">
+                <div class="row">
+                  <div class="col-xs-4 text-center">
+                    <a href="#">Followers</a>
+                  </div>
+                  <div class="col-xs-4 text-center">
+                    <a href="#">Sales</a>
+                  </div>
+                  <div class="col-xs-4 text-center">
+                    <a href="#">Friends</a>
+                  </div>
+                </div>
+                <!-- /.row -->
+              </li>
+              <!-- Menu Footer-->
+              <li class="user-footer">
+                <div class="pull-left">
+                  <a href="#" class="btn btn-default btn-flat">Profile</a>
+                </div>
+                <div class="pull-right">
+                  <a href="#" class="btn btn-default btn-flat">Sign out</a>
+                </div>
+              </li>
+            </ul>
+          </li>
+          <!-- Control Sidebar Toggle Button -->
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2">
+                <ul class="nav nav-list">
+                    <li>
+                        <a href="{% url 'crm_index' %}">首页</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'server_list' %}">资源</a>
+                    </li>
+                    <li><a href="#">配置</a></li>
+                    <li><a href="#">云平台管理</a></li>
+                    <li>
+                        <a href="#">监控</a>
+                    </li>
+                    <li>
+                        <a href="#">堡垒机</a>
+                    </li>
+                    <li><a href="#">任务</a></li>
+                    <li><a href="#">DNS</a></li>
+                    <li><a href="#">资源池</a></li>
+                    <li><a href="#">发布</a></li>
+                </ul>
+            </div>
+            <div class="col-md-10">
+                <ol class="breadcrumb">
+                  <li><a href="{% url 'crm_index' %}">首页</a></li>
+                  <li><a href="#">资产列表</a></li>
+                    <li><a href="#">资产详细</a></li>
+                </ol>
+                <form method="post">
+                    {% csrf_token %}
+                    <ul class="nav nav-tabs">
+                      <li role="presentation" class="active"><a onclick="makechoices(this,{{ object.id }},'base')">基本信息</a></li>
+                      <li role="presentation"><a onclick="makechoices(this,{{ object.id }},'hard')">硬件信息</a></li>
+                      <li role="presentation"><a onclick="makechoices(this,{{ object.id }},'change')">变更记录</a></li>
+                    </ul>
+                </form>
+                <div id="content"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        function makechoices(ele,id,choice) {
+            $(ele).parent().siblings().removeClass('active');
+            $(ele).parent().addClass('active');
+            $.ajax({
+                url:"{{ request.path }}",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    "id":id,
+                    "choice":choice,
+                    "csrfmiddlewaretoken":$('[name="csrfmiddlewaretoken"]').val()
+                },
+                success:function (data,status) {
+                    alert(data.message);
+                    $("#content").append('<p>' + data.message + '</p>');
+                },
+                error:function (errormsg) {
+                    $("#content").append("<p>errormsg</p>");
+                }
+            });
+        }
+    </script>
+{% endblock %}
