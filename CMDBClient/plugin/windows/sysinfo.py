@@ -87,11 +87,16 @@ class Win32Info(object):
                     break
             else:
                 item_data['iface_type']  = 'unknown'
+            print("*"*10)
+            print(disk)
             item_data['slot']  = disk.Index
             item_data['sn']  = disk.SerialNumber
             item_data['model']  = disk.Model
             item_data['manufactory']  = disk.Manufacturer
-            item_data['capacity']  = int(disk.Size ) / (1024*1024*1024)
+            if disk.Size:
+                item_data['capacity']  = int(disk.Size ) / (1024*1024*1024)
+            else:
+               item_data['capacity'] = 0
             data.append(item_data)
         return {'physical_disk_driver':data}
     def get_nic_info(self):

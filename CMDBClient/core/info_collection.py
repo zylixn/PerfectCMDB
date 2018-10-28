@@ -1,4 +1,4 @@
-from CMDBClient.plugin import plugin_api
+from plugin import plugin_api
 import platform
 import sys
 

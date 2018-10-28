@@ -1,4 +1,4 @@
-from CMDBClient.plugin.linux import sysinfo
+from plugin.linux import sysinfo
 
 def LinuxSysInfo():
     #print __file__
@@ -6,5 +6,5 @@ def LinuxSysInfo():
 
 
 def WindowsSysInfo():
-    from CMDBClient.plugin.windows import sysinfo as win_sysinfo
+    from plugin.windows import sysinfo as win_sysinfo
     return win_sysinfo.collect()

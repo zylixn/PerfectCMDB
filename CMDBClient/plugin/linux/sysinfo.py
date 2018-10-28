@@ -3,7 +3,7 @@ __author__ = 'Alex Li'
 
 
 import os,sys,subprocess
-import commands
+import os
 import re
 
 
@@ -15,7 +15,7 @@ def collect():
     for key in filter_keys:
         try:
             #cmd_res = subprocess.check_output("sudo dmidecode -t system|grep '%s'" %key,shell=True)
-            cmd_res = commands.getoutput("sudo dmidecode -t system|grep '%s'" %key)
+            cmd_res = os.system("sudo dmidecode -t system|grep '%s'" %key)
             cmd_res = cmd_res.strip()
 
             res_to_list = cmd_res.split(':')
@@ -50,7 +50,7 @@ def diskinfo():
 def nicinfo():
     #tmp_f = file('/tmp/bonding_nic').read()
     #raw_data= subprocess.check_output("ifconfig -a",shell=True)
-    raw_data = commands.getoutput("ifconfig -a")
+    raw_data = os.system("ifconfig -a")
 
     raw_data= raw_data.split("\n")
 
@@ -113,7 +113,7 @@ def nicinfo():
     return {'nic':nic_list}
 def raminfo():
     #raw_data = subprocess.check_output(["sudo", "dmidecode" ,"-t", "17"])
-    raw_data = commands.getoutput("sudo dmidecode -t 17")
+    raw_data = os.system("sudo dmidecode -t 17")
     raw_list = raw_data.split("\n")
     raw_ram_list = []
     item_list = []
@@ -163,7 +163,7 @@ def raminfo():
 
     #get total size(mb) of ram as well
     #raw_total_size = subprocess.check_output(" cat /proc/meminfo|grep MemTotal ",shell=True).split(":")
-    raw_total_size = commands.getoutput("cat /proc/meminfo|grep MemTotal ").split(":")
+    raw_total_size = os.system("cat /proc/meminfo|grep MemTotal ").split(":")
     ram_data = {'ram':ram_list}
     if len(raw_total_size) == 2:#correct
 
@@ -174,9 +174,9 @@ def raminfo():
     return ram_data
 def osinfo():
     #distributor = subprocess.check_output(" lsb_release -a|grep 'Distributor ID'",shell=True).split(":")
-    distributor = commands.getoutput(" lsb_release -a|grep 'Distributor ID'").split(":")
+    distributor = os.system(" lsb_release -a|grep 'Distributor ID'").split(":")
     #release  = subprocess.check_output(" lsb_release -a|grep Description",shell=True).split(":")
-    release  = commands.getoutput(" lsb_release -a|grep Description").split(":")
+    release  = os.system(" lsb_release -a|grep Description").split(":")
     data_dic ={
         "os_distribution": distributor[1].strip() if len(distributor)>1 else None,
         "os_release":release[1].strip() if len(release)>1 else None,
@@ -196,7 +196,7 @@ def cpuinfo():
     for k,cmd in raw_data.items():
         try:
             #cmd_res = subprocess.check_output(cmd,shell=True)
-            cmd_res = commands.getoutput(cmd)
+            cmd_res = os.system(cmd)
             raw_data[k] = cmd_res.strip()
 
         #except Exception,e:
@@ -227,7 +227,7 @@ class DiskPlugin(object):
         try:
             script_path = os.path.dirname(os.path.abspath(__file__))
             shell_command = "sudo %s/MegaCli  -PDList -aALL" % script_path
-            output = commands.getstatusoutput(shell_command)
+            output = os.system(shell_command)
             result['physical_disk_driver'] = self.parse(output[1])
         except Exception as e:
             result['error'] = e

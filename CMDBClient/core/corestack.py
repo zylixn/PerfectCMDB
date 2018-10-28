@@ -1,6 +1,6 @@
 __author__ = "lixn"
-from CMDBClient.conf import settings
-from CMDBClient.core import info_collection
+from conf import settings
+from core import info_collection,api_token
 import requests
 import logging
 import logging.handlers
@@ -38,8 +38,21 @@ class ArgvHandler(object):
         else:
             return None
 
+    def __attach_token(self,url_str):
+        '''generate md5 by token_id and username,and attach it on the url request'''
+        user = settings.Params['auth']['user']
+        token_id = settings.Params['auth']['token']
 
-    def report_assert(self):
+        md5_token,timestamp = api_token.get_token(user,token_id)
+        url_arg_str = "user=%s&timestamp=%s&token=%s" %(user,timestamp,md5_token)
+        if "?" in url_str:#already has arg
+            new_url = url_str + "&" + url_arg_str
+        else:
+            new_url = url_str + "?" + url_arg_str
+        return  new_url
+        #print(url_arg_str)
+
+    def report_asset(self):
         obj = info_collection.InfoCollection()
         asset_data = obj.collect()
         asset_id = self.load_assert_id()
@@ -63,6 +76,7 @@ class ArgvHandler(object):
             url = "http://%s:%s%s"%(settings.Params['server'],settings.Params['port'],settings.Params['urls'][url_key])
         else:
             url = "http://%s:%s%s"%(settings.Params['server'],settings.Params['urls'][url_key])
+        url = self.__attach_token(url)
         if method == "get":
             try:
                 response = requests.get(url,params=data,timeout=settings.Params['request_timeout'])
