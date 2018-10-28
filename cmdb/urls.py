@@ -20,5 +20,5 @@ urlpatterns = [
     path('',IndexView.as_view(),name="crm_index"),
     path('servers/',ServerList.as_view(),name="server_list"),
     path('servers/<int:pk>/',ServerDetail.as_view(),name="serverdetail"),
-    path('/asset/report/',AssetReport.as_view(),name="asset_report_interface"),
+    path('asset/report/',AssetReport.as_view(),name="asset_report_interface"),
 ]

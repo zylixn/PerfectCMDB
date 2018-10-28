@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render,HttpResponse
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.mixins import AccessMixin
 from django.utils.translation import activate
 from django.core.exceptions import  PermissionDenied
@@ -11,6 +12,8 @@ from django.http import JsonResponse
 from django.views.generic import TemplateView
 from django_redis import get_redis_connection
 from django.utils.safestring import mark_safe
+from cmdb.core import AssetHandler
+from cmdb import utils
 import json
 
 class LoginRequiredMixin(AccessMixin):
@@ -76,12 +79,21 @@ class AssetReport(TemplateView):
             asset_data = json.dumps(asset_data)
             print("Recv data ",asset_data)
             asset_id = asset_data.get("asset_id")
+            asset_handler = AssetHandler(request)
             if asset_id:
                 # 将带有id的资产信息入到相应的表里面
-                pass
+                if asset_handler.data_is_available():
+                    asset_handler.handler_asset()
+                return HttpResponse(json.dumps(asset_handler.response))
             else:
                 # 将没有id的资产入到待审批的表里面
-                pass
+                res = asset_handler.get_asset_id_by_sn()
+                return HttpResponse(json.dumps(res))
+
+    @csrf_exempt
+    @utils.token_required
+    def dispatch(self, request, *args, **kwargs):
+        return super(AssetReport, self).dispatch(*args,**kwargs)
 
 
 

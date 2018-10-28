@@ -78,6 +78,7 @@ class UserProfile(AbstractBaseUser):
     )
     password = models.CharField(max_length=64)
     role = models.ManyToManyField('Role')
+    token = models.CharField(u'token', max_length=128,default=None,blank=True,null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
@@ -259,7 +260,6 @@ class Asset(models.Model):
 
     def __str__(self):
         return '<id:%s name:%s>' % (self.id, self.name)
-
 
 class Server(models.Model):
     """服务器设备"""
