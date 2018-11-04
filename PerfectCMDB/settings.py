@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cmdb',
     'kingadmin',
+    'autodeploy',
+    'monitor',
 ]
 
 MIDDLEWARE = [

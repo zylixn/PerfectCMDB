@@ -1,4 +1,4 @@
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render,HttpResponse,redirect
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.mixins import AccessMixin
@@ -7,14 +7,17 @@ from django.core.exceptions import  PermissionDenied
 from django.contrib.auth.views import redirect_to_login
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from cmdb.models import ServerInfor
-from django.http import JsonResponse
+from cmdb.models import ServerInfor,Asset,NewAssetApprovalZone
+from django.http import JsonResponse,Http404
 from django.views.generic import TemplateView
 from django_redis import get_redis_connection
 from django.utils.safestring import mark_safe
+from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 from cmdb.core import AssetHandler
+from cmdb.admin import AssetAdmin,NewAssetApprovalZoneAdmin
 from cmdb import utils
 import json
+import traceback
 
 class LoginRequiredMixin(AccessMixin):
     """
@@ -35,16 +38,89 @@ class IndexView(View):
     def get(self,request):
         return render(request,'common/index.html')
 
-class ServerList(ListView):
-    model = ServerInfor
-    template_name = 'cmdb/resource.html'
+class AssetList(ListView):
+    model = Asset
+    template_name = 'cmdb/asset_list.html'
     permission_required = 'cmdb.can_view_serverinfo'
     raise_exception = True
 
-    def get_context_data(self, **kwargs):
-        context = super(ServerList, self).get_context_data(**kwargs)
-        context['serverlist'] = ServerInfor.objects.all()
+    def get_context_data(self, *, object_list=None, **kwargs):
+        filter_conditions = {}
+        sorted_column = None
+        context = super(AssetList, self).get_context_data(**kwargs)
+        querysets = Asset.objects.get_queryset().order_by('id')
+        try:
+            print("1queryset:", querysets)
+            querysets = utils.search_by(self.request, querysets, AssetAdmin)
+            print("2queryset:",querysets)
+            querysets, filter_conditions = utils.get_filter_result(self.request, querysets)
+            querysets, sorted_column = utils.get_orderby_result(self.request, querysets, AssetAdmin)
+            paginator = Paginator(querysets, AssetAdmin.list_per_page)
+            page = self.request.GET.get('page')
+            try:
+                querysets = paginator.page(page)
+            except PageNotAnInteger:
+                querysets = paginator.page(1)
+            except EmptyPage:
+                querysets = paginator.page(paginator.num_pages)
+        except Exception as e:
+            traceback.print_exc()
+
+        # AssetAdmin.filter_conditions = filter_conditions
+        context['assets'] = querysets
+        context['sorted_column'] = sorted_column
+        context['model'] = Asset
+        context['list_filter'] = AssetAdmin.list_filter
+        context['list_display'] = AssetAdmin.list_display
+        context['search_fields'] = AssetAdmin.search_fields
+        context['filter_conditions'] = filter_conditions
+        # print("model:%s,admin_class:%s"%(type(Asset),type(AssetAdmin)))
         return context
+
+    def post(self,request):
+        IDS = request.POST.get('IDS')
+        print("IDS:",IDS)
+        arr = IDS.split('-')
+        if arr:
+            Asset.objects.filter(id__in=arr).delete()
+        return redirect('/cmdb/servers/')
+
+class NewAssetApprovalZoneList(ListView):
+    model = NewAssetApprovalZone
+    template_name = 'cmdb/newasset_list.html'
+    permission_required = 'cmdb.can_view_serverinfo'
+    raise_exception = True
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        filter_conditions = {}
+        sorted_column = None
+        context = super(NewAssetApprovalZoneList, self).get_context_data(**kwargs)
+        querysets = NewAssetApprovalZone.objects.get_queryset().order_by('id')
+        try:
+            print("1queryset:", querysets)
+            querysets = utils.search_by(self.request, querysets, NewAssetApprovalZoneAdmin)
+            print("2queryset:",querysets)
+            querysets, filter_conditions = utils.get_filter_result(self.request, querysets)
+            querysets, sorted_column = utils.get_orderby_result(self.request, querysets, AssetAdmin)
+            paginator = Paginator(querysets, AssetAdmin.list_per_page)
+            page = self.request.GET.get('page')
+            try:
+                querysets = paginator.page(page)
+            except PageNotAnInteger:
+                querysets = paginator.page(1)
+            except EmptyPage:
+                querysets = paginator.page(paginator.num_pages)
+        except Exception as e:
+            traceback.print_exc()
+        context['assets'] = querysets
+        context['sorted_column'] = sorted_column
+        context['model'] = NewAssetApprovalZone
+        context['list_filter'] = NewAssetApprovalZoneAdmin.list_filter
+        context['list_display'] = NewAssetApprovalZoneAdmin.list_display
+        context['search_fields'] = NewAssetApprovalZoneAdmin.search_fields
+        context['filter_conditions'] = filter_conditions
+        return context
+
 
 class ServerDetail(DetailView):
     model = ServerInfor
@@ -94,6 +170,3 @@ class AssetReport(TemplateView):
     @utils.token_required
     def dispatch(self, request, *args, **kwargs):
         return super(AssetReport, self).dispatch(*args,**kwargs)
-
-
-

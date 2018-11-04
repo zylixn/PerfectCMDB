@@ -1,12 +1,12 @@
 #_*_coding:utf-8_*_
-__author__ = 'Alex Li'
-
+__author__ = 'lixn'
 import time,hashlib,json
 from cmdb import models
 from django.shortcuts import render,HttpResponse
 from PerfectCMDB import settings
-
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count,Q
+
 def json_date_handler(obj):
     if hasattr(obj, 'isoformat'):
         return obj.strftime("%Y-%m-%d")
@@ -20,7 +20,6 @@ def json_datetime_handler(obj):
 def gen_token(username,timestamp,token):
     token_format = "%s\n%s\n%s" %(username,timestamp,token)
     #print('--->token format:[%s]'% token_format)
-
     obj = hashlib.md5()
     obj.update(token_format.encode())
     return obj.hexdigest()[10:17]
@@ -58,4 +57,40 @@ def token_required(func):
     return wrapper
 
 
+def get_orderby_result(request,querysets,admin_class):
+    """
+    排序
+    :param request:
+    :param querysets:
+    :param admin_class:
+    :return:
+    """
+    # 记录按照哪一个字段排序
+    current_ordered_column = {}
+    orderby_index = request.GET.get('_o')
+    if orderby_index:
+        orderby_key = admin_class.list_display[abs(int(orderby_index))]
+        current_ordered_column[orderby_key] = orderby_index
+        if orderby_index.startswith('-'):
+            orderby_key = '-' + orderby_key
+        return querysets.order_by(orderby_key),current_ordered_column
+    else:
+        return querysets,current_ordered_column
 
+def get_filter_result(request,querysets):
+    filter_conditions = {}
+    for key,val in request.GET.items():
+        if key in ('page','_o','_q'):continue
+        if val:
+            filter_conditions[key] = val
+    return querysets.filter(**filter_conditions),filter_conditions
+
+def search_by(request,querysets,admin_form):
+    search_str = request.GET.get("_q")
+    if search_str:
+        q_objs = []
+        for q_field in admin_form.search_fields:
+            q_objs.append("Q(%s__contains='%s')" %(q_field,search_str) )
+        #print(" | ".join(q_objs) )
+        return  querysets.filter(eval("|".join(q_objs)))
+    return querysets

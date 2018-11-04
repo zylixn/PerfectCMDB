@@ -816,7 +816,7 @@
                                         {% for menu,values in menus.items %}
                                             {% if values|length %}
                                                 <li class="active-sub">
-                                                    <a href="#">
+                                                    <a href="{{ menu.url_name }}">
                                                         <i class="{{ menu.class_name }}"></i>
                                                         <span class="menu-title">{{ menu.name }}</span>
                                                         <i class="arrow"></i>
@@ -825,13 +825,13 @@
                                                     <!--Submenu-->
                                                     <ul class="collapse">
                                                         {% for submenu in values %}
-                                                            <li onclick="ActiveMenu(this)" id="{{ submenu.id }}"><a href="#">{{ submenu }}</a></li>
+                                                            <li onclick="ActiveMenu(this)" id="{{ submenu.id }}"><a href="{{ submenu.url_name }}">{{ submenu }}</a></li>
                                                         {% endfor %}
                                                     </ul>
                                                 </li>
                                             {% else %}
                                                 <li onclick="ActiveMenu(this)">
-                                                    <a href="#">
+                                                    <a href="{{ menu.url_name }}">
                                                         <i class="{{ menu.class_name }}"></i>
                                                         <span class="menu-title">{{ menu.name }}</span>
                                                     </a>

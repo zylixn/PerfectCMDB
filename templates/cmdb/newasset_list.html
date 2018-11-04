@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load cmdbtags %}
+
+{% block title %}
+待审批区
+{% endblock %}
+
+{% block extra_css %}
+    <!--Nifty Premium Icon [ DEMONSTRATION ]-->
+    <link href="{% static 'css/demo/nifty-demo-icons.min.css' %}" rel="stylesheet">
+    <!--Demo [ DEMONSTRATION ]-->
+    <link href="{% static 'css/demo/nifty-demo.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        function chooseallornot(ele) {
+            if($(ele).prop('checked')){
+                $(":checkbox").prop("checked",true);
+            } else {
+                $(":checkbox").prop("checked",false);
+            }
+        }
+        function delete_choose() {
+            arr = [];
+            $.each($("input[type='checkbox']:checked"),function (i,val) {
+                id = val.value;
+                if (Number(id)){
+                   arr.push(val.value);
+                }
+            });
+            datastr = arr.join('-');
+            $("#ids").prop("value",datastr);
+        }
+
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div id="content-container">
+        <div id="page-content">
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3 class="panel-title">待审批区</h3>
+                </div>
+
+                <!--Data Table-->
+                <!--===================================================-->
+                <div class="panel-body">
+                    <div class="pad-btm form-inline">
+                        <div class="row">
+                            <div class="col-sm-8 table-toolbar-left">
+{#                                <button id="demo-btn-addrow" class="btn btn-purple"><i class="demo-pli-add"></i> Add</button>#}
+                                {% if list_filter %}
+                                <form class="form-horizontal">
+                                    {% for field in list_filter %}
+                                        <label>{{ field }}:</label>
+                                        <select name="{{ field }}" aria-controls="demo-dt-basic" class="form-control input-sm">
+                                            <option value=""></option>
+                                            {% options model field as choices %}
+                                            {% for choice in choices %}
+                                                {% for key,value in choice.items %}
+                                                   <option value="{{ key }}" {% get_selected_option filter_conditions field key %}>{{ value }}</option>
+                                                {% endfor %}
+                                            {% endfor %}
+
+{#                                            {% for key,value in choices.items %}#}
+{#                                                <option>test</option>#}
+{#                                                <option value="{{ key }}" {% get_selected_option filter_conditions field value %}>{{ choice }}</option>#}
+{#                                            {% endfor %}#}
+                                        </select>
+                                    {% endfor %}
+                                    <input type="hidden" name="_o" value="{% get_current_sort_index sorted_column %}"></input>
+                                    <input type="submit" value="过滤" class="btn btn-info">
+                                 </form>
+                            {% endif %}
+                            </div>
+                            <div class="col-sm-4 table-toolbar-right">
+                                <form class="form-group">
+                                    <input id="demo-input-search2" type="text" placeholder="请输入搜索IP" class="form-control" autocomplete="off" name="_q">
+                                    <button class="btn btn-info" type="submit">查询</button>
+                                </form>
+{#                                <div class="btn-group">#}
+{##}
+{#                                    <div class="btn-group">#}
+{#                                        <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">#}
+{#                                            <i class="demo-pli-gear"></i>#}
+{#                                            <span class="caret"></span>#}
+{#                                        </button>#}
+{#                                        <ul role="menu" class="dropdown-menu dropdown-menu-right">#}
+{#                                            <li><a href="#">Action</a></li>#}
+{#                                            <li><a href="#">Another action</a></li>#}
+{#                                            <li><a href="#">Something else here</a></li>#}
+{#                                            <li class="divider"></li>#}
+{#                                            <li><a href="#">Separated link</a></li>#}
+{#                                        </ul>#}
+{#                                    </div>#}
+{#                                </div>#}
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th><div class="th-inner "><input type="checkbox" id="head_input" onclick="chooseallornot(this);"></div><div class="fht-cell"></div></th>
+                                    {% for field in list_display %}
+                                        <th class="text-center">{{ field }}</th>
+                                    {% endfor %}
+                                    <th class="text-center">opertype</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asset in assets %}
+                                    <tr>
+                                        <th><div><input type="checkbox" id="asset_{{ asset.id }}" value="{{ asset.id }}"></div><div class="fht-cell"></div></th>
+                                        {% build_table_row asset list_display model %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr>
+                    <form method="post" onsubmit="delete_choose()">
+                        {% csrf_token %}
+                        <input type="hidden" id="ids" name="IDS">
+                        <span><button id="demo-btn-addrow" class="btn btn-purple" type="submit"><i class="demo-pli-remove"></i> delete</button></span>
+                    </form>
+                    <div class="pull-right">
+                        {% render_paginator assets filter_conditions sorted_column %}
+                    </div>
+                </div>
+                <!--===================================================-->
+                <!--End Data Table-->
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

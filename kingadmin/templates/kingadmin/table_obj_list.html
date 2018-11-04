@@ -82,7 +82,7 @@
                         <th><input type="checkbox" onclick="SelectAllObjs(this)"></th>
                         {% for column in admin_class.list_display %}
                             <th><a href="?_o={% get_sorted_column column sorted_column forloop.counter0 %}
-    {% render_filter_args admin_class %}">
+                   {% render_filter_args admin_class %}">
                                 {{ column }}{% render_sorted_arrow column sorted_column %}</a></th>
                         {% endfor %}
                     </tr>
