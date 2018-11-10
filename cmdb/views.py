@@ -16,8 +16,10 @@ from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 from cmdb.core import AssetHandler
 from cmdb.admin import AssetAdmin,NewAssetApprovalZoneAdmin
 from cmdb import utils
+import datetime
 import json
 import traceback
+import re
 
 class LoginRequiredMixin(AccessMixin):
     """
@@ -120,6 +122,37 @@ class NewAssetApprovalZoneList(ListView):
         context['search_fields'] = NewAssetApprovalZoneAdmin.search_fields
         context['filter_conditions'] = filter_conditions
         return context
+
+    def post(self,request):
+        result = {"error": ""}
+        asset_id = request.POST.get("id")
+        asset = dict()
+        m = re.search(r'(\D+)(\d+)',asset_id)
+        if m:
+            asset_id = m.group(2)
+        if asset_id:
+            # 将asset_id对应的对象状态改成已审批
+            newasset = NewAssetApprovalZone.objects.get(id=asset_id)
+            newasset.approved = True
+            newasset.approved_by = request.user
+            newasset.approved_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            newasset.save()
+            asset = {
+                    "sn":newasset.sn,
+                    "asset_type":newasset.asset_type,
+                    "manufactory":newasset.manufactory,
+            }
+            obj = Asset(**asset)
+            obj.save()
+        else:
+            result = {"error":"appoval failed"}
+            #return JsonResponse(result)
+        return JsonResponse(result)
+    
+    @csrf_exempt
+    def dispatch(self, request, *args, **kwargs):
+        return super(NewAssetApprovalZoneList, self).dispatch(request, *args, **kwargs)
+        
 
 
 class ServerDetail(DetailView):

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'kingadmin',
     'autodeploy',
     'monitor',
+    'tasks',
 ]
 
 MIDDLEWARE = [

@@ -36,8 +36,8 @@ def build_table_row(obj,list_display,model):
             if index == 0:
                 td_ele = "<td><a href='%s/change/'>%s</a></td>"%(obj.id,column_data)
             ele += td_ele
-        else:
-            ele += "<td><button class='label label-table label-info'>登录</button></td>"
+        # else:
+        #     ele += "<td><button class='label label-table label-info'>登录</button></td>"
     else:
         ele += "<td><a href='%s/change/'>%s</a></td>"%(obj.id,obj)
     return mark_safe(ele)
