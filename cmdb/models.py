@@ -259,7 +259,7 @@ class Asset(models.Model):
         verbose_name_plural = "资产总表"
 
     def __str__(self):
-        return '<id:%s name:%s>' % (self.id, self.name)
+        return '%s#%s'%(self.name,self.management_ip)
 
 class Server(models.Model):
     """服务器设备"""
