@@ -2103,7 +2103,7 @@
 	 * =================== */
 	$.fn.datepicker.version = '1.6.0';
 
-	/* DATEPICKER DATA-API
+	/* DATEPICKER DATA-api
 	* ================== */
 
 	$(document).on(

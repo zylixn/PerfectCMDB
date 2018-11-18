@@ -48,7 +48,7 @@ class DiskInline(admin.TabularInline):
     readonly_fields = ['create_date']
 
 class AssetAdmin(admin.ModelAdmin):
-    list_display = ('id','asset_type','sn','name','manufactory','management_ip','idc','business_unit','admin','trade_date','status')
+    list_display = ('id','asset_type','sn','name','manufactory','management_ip','idc','business_unit','trade_date','status')
     inlines = [ServerInline,CPUInline,RAMInline,DiskInline,NICInline]
     search_fields = ['sn',]
     list_filter = ['idc','business_unit','asset_type']
@@ -109,6 +109,8 @@ admin.site.register(models.RAM)
 admin.site.register(models.Manufactory)
 admin.site.register(models.Tag)
 admin.site.register(models.Software)
+admin.site.register(models.AssetGroup)
+admin.site.register(models.Credential)
 admin.site.register(models.EventLog,EventLogAdmin)
 admin.site.register(models.NewAssetApprovalZone,NewAssetApprovalZoneAdmin)
 

@@ -1721,7 +1721,7 @@
         e.stopPropagation();
       });
 
-  // SELECTPICKER DATA-API
+  // SELECTPICKER DATA-api
   // =====================
   $(window).on('load.bs.select.data-api', function () {
     $('.selectpicker').each(function () {

@@ -48,5 +48,8 @@ class TaskForm(forms.ModelForm):
         cls.base_fields['execplan'] = forms.ModelChoiceField(queryset=plans)
         for field_name in cls.base_fields:
             field_obj = cls.base_fields[field_name]
-            field_obj.widget.attrs.update({'class': 'form-control input-sm'})
+            if field_name == 'is_template':
+                field_obj.widget.attrs.update({'class': ''})
+            else:
+                field_obj.widget.attrs.update({'class': 'form-control input-sm'})
         return forms.ModelForm.__new__(cls)

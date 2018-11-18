@@ -19,5 +19,8 @@ from django.urls import path,include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('cmdb/',include('cmdb.urls')),
-    path('tasks/',include('tasks.urls'))
+    path('tasks/',include('tasks.urls')),
+    path('monitor/',include('monitor.urls')),
+    path('chat/',include('test_websocket.urls')),
+    path('webssh/', include('webssh.urls')),
 ]

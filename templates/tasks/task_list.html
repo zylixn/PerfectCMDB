@@ -101,7 +101,7 @@
                                     <tr>
                                         <th><div><input type="checkbox" id="asset_{{ task.id }}" value="{{ task.id }}"></div><div class="fht-cell"></div></th>
                                         {% build_table_row task list_display model %}
-                                        <td><button class='label label-table label-info'><a href="/tasks/{{ task.id }}/">详细</a></button></td>
+                                        <td><button class='label label-table label-info'><a href="/tasks/detail/{{ task.id }}/">详细</a></button></td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

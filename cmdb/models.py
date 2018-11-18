@@ -2,8 +2,41 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import (
-    BaseUserManager, AbstractBaseUser
+    BaseUserManager, AbstractBaseUser,Group
 )
+try:
+    from Crypto.Cipher import AES
+except ModuleNotFoundError:
+    pass
+import base64
+
+
+def get_AES(password, encode=1):
+    # 密码加密
+
+    KEY = '1234567890123456'
+    BLOCK_SIZE = 16  # AES.block_size
+    PADDING = chr(20)  # 'ý' #未满16*n时，补齐字符chr(253)
+
+    pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * PADDING
+    EncodeAES = lambda c, s: base64.b64encode(c.encrypt(pad(s)))
+    DecodeAES = lambda c, e: c.decrypt(base64.b64decode(e)).rstrip(PADDING)
+    cipher = AES.new(KEY)
+    if encode:
+        # 密码加密，用于内部保存
+        # try:
+        #     decoded = DecodeAES(cipher, password)
+        # return  password #未修改密码直接提交，原字符已为密文，无需再次加密
+        # except:
+        #     pass
+        return EncodeAES(cipher, password)  # 修改了密码，重新加密为密文
+    else:
+        # 密码解密，用于外部提取
+        try:
+            return DecodeAES(cipher, password)
+        except:
+            print('Error: AES密码解密失败！！')
+            return ''
 
 class Menu(models.Model):
     '''动态菜单'''
@@ -81,6 +114,7 @@ class UserProfile(AbstractBaseUser):
     token = models.CharField(u'token', max_length=128,default=None,blank=True,null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+
 
     objects = MyUserManager()
 
@@ -205,6 +239,25 @@ class Credential(models.Model):
             ("can_delete_credential", _("Can delete credential info")),
             ("can_view_credential", _("Can view credential info")),
         )
+    
+    # def save(self, *args, **kwargs):
+    #     if self.password:
+    #         password_aes = get_AES(password=self.password)
+    #         self.password = password_aes
+    #     elif self.id:
+    #         del self.password # 防止不修改密码时，提交的空密码覆盖
+    #     super(Credential, self).save(*args,**kwargs)
+
+class AssetGroup(models.Model):
+    name = models.CharField("组名/区域",max_length=30,unique=True)
+    desc = models.CharField("描述",max_length=100,null=True,blank=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = '主机分组'
+
+    def __str__(self):
+        return self.name
 
 class Asset(models.Model):
     asset_type_choices = (
@@ -213,33 +266,27 @@ class Asset(models.Model):
         ('storagedevice', u'存储设备'),
         ('securitydevice', u'安全设备'),
         ('securitydevice', u'机房设备'),
-        # ('switch', u'交换机'),
-        # ('router', u'路由器'),
-        # ('firewall', u'防火墙'),
-        # ('storage', u'存储设备'),
-        # ('NLB', u'NetScaler'),
-        # ('wireless', u'无线AP'),
         ('software', u'软件资产'),
-        # ('others', u'其它类'),
     )
     asset_type = models.CharField(choices=asset_type_choices, max_length=64, default='server')
     name = models.CharField(max_length=64, unique=True)
     sn = models.CharField(u'资产SN号', max_length=128, unique=True)
     manufactory = models.ForeignKey('Manufactory', verbose_name=u'制造商', null=True, blank=True,on_delete=models.CASCADE)
-    # model = models.ForeignKey('ProductModel', verbose_name=u'型号')
-    # model = models.CharField(u'型号',max_length=128,null=True, blank=True )
-
     management_ip = models.GenericIPAddressField(u'管理IP', blank=True, null=True)
-
     contract = models.ForeignKey('Contract', verbose_name=u'合同', null=True, blank=True,on_delete=models.CASCADE)
     trade_date = models.DateField(u'购买时间', null=True, blank=True)
     expire_date = models.DateField(u'过保修期', null=True, blank=True)
     price = models.FloatField(u'价格', null=True, blank=True)
     business_unit = models.ForeignKey('BusinessUnit', verbose_name=u'所属业务线', null=True, blank=True,on_delete=models.CASCADE)
     tags = models.ManyToManyField('Tag', blank=True)
-    admin = models.ForeignKey('UserProfile', verbose_name=u'资产管理员', null=True, blank=True,on_delete=models.CASCADE)
+    #admin = models.ForeignKey('UserProfile', verbose_name=u'资产管理员', null=True, blank=True,on_delete=models.CASCADE)
     idc = models.ForeignKey('IDC', verbose_name=u'IDC机房', null=True, blank=True,on_delete=models.CASCADE)
-
+    group = models.ForeignKey(AssetGroup, verbose_name=u"组/安全区域", default=1, on_delete=models.SET_NULL, null=True,
+                              blank=True)
+    usergroup = models.ManyToManyField(Group,verbose_name='网站用户组',blank=True,help_text='网站哪些用户组可以对主机进行操作')
+    user = models.ManyToManyField(UserProfile,verbose_name='网站用户权限', blank=True,
+                                  # through='Host_User',  # 行级别的权限控制，人工录入时麻烦，比较困难实现快速批量设置主机清单
+                                  help_text='网站哪些用户能对当前主机进行操作，超级用户直接有操作权限')
     status_choices = ((0, '在线'),
                       (1, '已下线'),
                       (2, '未知'),
@@ -247,19 +294,65 @@ class Asset(models.Model):
                       (4, '备用'),
                       )
     status = models.SmallIntegerField(choices=status_choices, default=0)
-    # status = models.ForeignKey('Status', verbose_name = u'设备状态',default=1)
-    # Configuration = models.OneToOneField('Configuration',verbose_name='配置管理',blank=True,null=True)
-
+    credential = models.ForeignKey('Credential', on_delete=models.CASCADE)
     memo = models.TextField(u'备注', null=True, blank=True)
     create_date = models.DateTimeField(blank=True, auto_now_add=True)
     update_date = models.DateTimeField(blank=True, auto_now=True)
 
     class Meta:
+        permissions = (
+            # 实现表级别的权限控制
+            ("deploy_asset", "Can deploy asset"),  # APP部署
+            ("webssh_asset", "Can webssh asset"),  # 终端登陆
+            ("grep_asset", "Can grep asset"),  # 执行日志搜索
+            ("run_sh_asset", "Can run_sh asset"),  # 执行常用命令
+            ("run_cmd_asset", "Can run_cmd asset"),  # 执行自定义命令
+            ("other_do_asset", "Can other_do asset"),  # 执行其它操作，如ES节点索引
+        )
+
         verbose_name = '资产总表'
         verbose_name_plural = "资产总表"
 
     def __str__(self):
         return '%s#%s'%(self.name,self.management_ip)
+
+    def chk_user_perm(self,user,perm):
+        if user.is_admin:
+            return 1
+        elif not user.has_perm('cmdb.%s_asset'%perm):
+            return 0
+        elif user in self.user.all() or self.admin == user:
+            return 1 # 主机有设置设置用户为网站操作用户/负责人
+
+        usergroups = self.usergroup.all()
+        for usergroup in usergroups:
+            if user in usergroup.user_set.all():
+                return 1
+        return 0
+
+    def get_ssh_user(self):
+        # 获取某台主机SSH用户/密码
+        credential = self.credential
+        if not credential:
+            ssh_users = Credential.objects.all()
+            if ssh_users:
+                ssh_user = ssh_users[0]
+            else:
+                print("为找到对应的用户")
+                return
+        username = ssh_user.username
+        password = get_AES(password=ssh_user.password,encode=0)
+        return username,password
+
+    @staticmethod
+    def get_user_asset(user):
+        # 获取用户有操作权限的所有主机
+        assets = Asset.objects.all()
+        if user.is_admin:
+            return assets
+
+        assets1 = assets.filter(user=user) # 已设置用户为操作用户
+        return assets1
 
 class Server(models.Model):
     """服务器设备"""
@@ -304,7 +397,6 @@ class Server(models.Model):
     def __str__(self):
         return '%s sn:%s' % (self.asset.name, self.asset.sn)
 
-
 class SecurityDevice(models.Model):
     """安全设备"""
     asset = models.OneToOneField('Asset',on_delete=models.CASCADE)
@@ -318,7 +410,6 @@ class SecurityDevice(models.Model):
 
     def __str__(self):
         return self.asset.id
-
 
 class NetworkDevice(models.Model):
     """网络设备"""
@@ -344,7 +435,6 @@ class NetworkDevice(models.Model):
     class Meta:
         verbose_name = '网络设备'
         verbose_name_plural = "网络设备"
-
 
 class Software(models.Model):
     '''
@@ -377,7 +467,6 @@ class Software(models.Model):
         verbose_name = '软件/系统'
         verbose_name_plural = "软件/系统"
 
-
 class CPU(models.Model):
     """CPU组件"""
 
@@ -395,7 +484,6 @@ class CPU(models.Model):
 
     def __str__(self):
         return self.cpu_model
-
 
 class RAM(models.Model):
     """内存组件"""
@@ -418,7 +506,6 @@ class RAM(models.Model):
         unique_together = ("asset", "slot")
 
     auto_create_fields = ['sn', 'slot', 'model', 'capacity']
-
 
 class Disk(models.Model):
     """硬盘组件"""
@@ -451,7 +538,6 @@ class Disk(models.Model):
     def __str__(self):
         return '%s:slot:%s capacity:%s' % (self.asset_id, self.slot, self.capacity)
 
-
 class NIC(models.Model):
     """网卡组件"""
 
@@ -478,7 +564,6 @@ class NIC(models.Model):
 
     auto_create_fields = ['name', 'sn', 'model', 'macaddress', 'ipaddress', 'netmask', 'bonding']
 
-
 class RaidAdaptor(models.Model):
     """Raid卡"""
 
@@ -496,7 +581,6 @@ class RaidAdaptor(models.Model):
     class Meta:
         unique_together = ("asset", "slot")
 
-
 class Manufactory(models.Model):
     """厂商"""
 
@@ -510,7 +594,6 @@ class Manufactory(models.Model):
     class Meta:
         verbose_name = '厂商'
         verbose_name_plural = "厂商"
-
 
 class BusinessUnit(models.Model):
     """业务线"""
@@ -527,7 +610,6 @@ class BusinessUnit(models.Model):
     class Meta:
         verbose_name = '业务线'
         verbose_name_plural = "业务线"
-
 
 class Contract(models.Model):
     """合同"""
@@ -550,7 +632,6 @@ class Contract(models.Model):
     def __str__(self):
         return self.name
 
-
 class IDC(models.Model):
     """机房"""
 
@@ -564,7 +645,6 @@ class IDC(models.Model):
         verbose_name = '机房'
         verbose_name_plural = "机房"
 
-
 class Tag(models.Model):
     """资产标签"""
 
@@ -574,7 +654,6 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class EventLog(models.Model):
     """事件"""
@@ -616,7 +695,6 @@ class EventLog(models.Model):
     colored_event_type.allow_tags = True
     colored_event_type.short_description = u'事件类型'
 
-
 class NewAssetApprovalZone(models.Model):
     """新资产待审批区"""
 
@@ -654,4 +732,3 @@ class NewAssetApprovalZone(models.Model):
     class Meta:
         verbose_name = '新上线待批准资产'
         verbose_name_plural = "新上线待批准资产"
-

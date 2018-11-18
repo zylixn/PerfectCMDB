@@ -1,10 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load taskstags %}
+{% block title %}
+任务详细页
+{% endblock %}
+{% block extra_js %}
+    <script>
+        $(document).ready(function () {
+            $("input").prop("disabled",true);
+            $("select").prop("disabled",true);
+            $("textarea").prop("disabled",true);
+        })
+    </script>
+{% endblock %}
+{% block content %}
+    <div id="content-container">
+        <div id="page-title">
+{#        <h1 class="page-header text-overflow">新建任务</h1>#}
+        </div>
+        <div id="page-content">
+        <div class="row">
+            <div class="col-lg-12">
+{#                <form method="post" class="form-horizontal">#}
+{#                    {{ form }}#}
+{#                </form>#}
+                <div class="panel">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">任务详细页</h3>
+                    </div>
 
-</body>
-</html>
+
+                    <!--Input Size-->
+                    <!--===================================================-->
+                    <form class="form-horizontal" method="post">
+                        {% csrf_token %}
+                        <div class="panel-body">
+                            {% for field in form %}
+                                {% ifnotequal field.name 'start_time' %}
+                                    {% ifnotequal field.name 'end_time' %}
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="demo-is-inputsmall"><b>{{ field.name }}</b></label>
+                                            <div class="col-sm-6">
+                                                {{ field }}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="demo-is-inputsmall"><b>{{ field.name }}</b></label>
+                                            <div class="col-sm-6 input-group date">
+                                                {{ field }}
+                                                <span class="input-group-addon"><i class="demo-pli-calendar-4"></i></span>
+                                            </div>
+                                        </div>
+                                    {% endifnotequal %}
+                                {% else %}
+                                     <div class="form-group">
+                                        <label class="col-sm-3 control-label" for="demo-is-inputsmall"><b>{{ field.name }}</b></label>
+                                        <div class="col-sm-6 input-group date">
+                                            {{ field }}
+                                            <span class="input-group-addon"><i class="demo-pli-calendar-4"></i></span>
+                                        </div>
+                                    </div>
+                                {% endifnotequal %}
+{#                                <div id="demo-dp-component">#}
+{#                                    <div class="input-group date">#}
+{#                                        <input type="text" class="form-control">#}
+{#                                        <span class="input-group-addon"><i class="demo-pli-calendar-4"></i></span>#}
+{#                                    </div>#}
+    {#                                <small class="text-muted">Auto close on select</small>#}
+{#                                </div>#}
+                            {% endfor %}
+
+                        </div>
+                        <div class="panel-footer">
+                            <div class="row">
+                                <div class="col-sm-7 col-sm-offset-5">
+                                    <button class="btn btn-mint" type="submit"><a href="/tasks/list/" style="text-decoration: none;color:#333;">返回</a></button>
+                                    <button class="btn btn-warning" >详细</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <!--===================================================-->
+                    <!--End Input Size-->
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+{% endblock %}
