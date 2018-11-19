@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='PerfectCMDB',
     version='1.0',
-    packages=['API', 'cmdb', 'cmdb.migrations', 'cmdb.templatetags', 'venv.Lib.distutils', 'venv.Lib.encodings',
+    packages=['api', 'cmdb', 'cmdb.migrations', 'cmdb.templatetags', 'venv.Lib.distutils', 'venv.Lib.encodings',
               'venv.Lib.importlib', 'venv.Lib.collections', 'venv.Lib.site-packages.pip',
               'venv.Lib.site-packages.pip._vendor', 'venv.Lib.site-packages.pip._vendor.idna',
               'venv.Lib.site-packages.pip._vendor.pep517', 'venv.Lib.site-packages.pip._vendor.pytoml',

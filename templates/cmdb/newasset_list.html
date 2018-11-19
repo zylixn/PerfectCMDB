@@ -33,6 +33,21 @@
             datastr = arr.join('-');
             $("#ids").prop("value",datastr);
         }
+        function ajaxConfirm(ele) {
+            var url = "{{ request.path }}";
+            var id = $(ele).parent().siblings().children().children().attr("id");
+            var data = {id:id};
+            alert("test");
+            $.ajax({
+                url:url,
+                type:'POST',
+                data:data,
+                dataType:"json",
+                success:function (result) {
+                    $(ele).prop("disabled","True");
+                }
+            })
+        }
 
     </script>
 {% endblock %}
@@ -117,6 +132,7 @@
                                     <tr>
                                         <th><div><input type="checkbox" id="asset_{{ asset.id }}" value="{{ asset.id }}"></div><div class="fht-cell"></div></th>
                                         {% build_table_row asset list_display model %}
+                                        <td><button class='label label-table label-info' onclick="ajaxConfirm(this)">审批</button></td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

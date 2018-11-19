@@ -41,6 +41,10 @@ INSTALLED_APPS = [
     'kingadmin',
     'autodeploy',
     'monitor',
+    'tasks',
+    'channels',
+    'test_websocket',
+    'webssh',
 ]
 
 MIDDLEWARE = [
@@ -73,7 +77,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'PerfectCMDB.wsgi.application'
-
+ASGI_APPLICATION = 'webssh.routing.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
@@ -149,3 +153,13 @@ STATICFILES_DIRS = (
 
 LOGIIN_URL = '/login/'
 AUTH_USER_MODEL = 'cmdb.UserProfile'
+
+ASGI_APPLICATION = 'PerfectCMDB.routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
