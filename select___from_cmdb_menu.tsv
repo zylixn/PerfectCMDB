@@ -1,0 +1,13 @@
+1	资产管理	0	-1	0	0	/cmdb/servers/	assets	ti-cloud	
+2	监控平台	0	0	0	0	/monitor/	monitor	ti-na	
+3	应用管理	0	1	0	0	/apps/	apps	ti-apple	
+4	待审批区	0	-2	0	0	/cmdb/newassets/	newasset_list	ti-bell	1
+5	配置管理	1	-1	0	0	/app/config/	app_config	ti-files	3
+6	应用监控	1	0	0	0	/app/status/	app_status	ti-files	3
+7	资产列表	1	1	0	0	/cmdb/servers/	server_list	ti-files	1
+8	任务编排	1	-1	0	0	/taskmanager/	taskmanager	ti-files	
+9	数据库监控	1	-1	0	0	/monitor/database/	database	ti-data	2
+10	原子能力	1	-1	0	0	/taskmanager/	taskmanager	ti-files	8
+11	新建任务	1	5	0	0	/tasks/create/	task_create	ti-data	8
+12	任务列表	1	3	0	0	/tasks/list/	task_list	ti-data	8
+13	主机监控	1	2	-3	0	/monitor/hosts/	monitor_hosts	ti-data	2
