@@ -11,6 +11,22 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+# import djcelery
+#
+# djcelery.setup_loader() # 加载djcelery
+# CELERY_TIMEZONE='Asia/Shanghai'
+# BROKER_URL = 'redis://127.0.0.1:6379/0' # 配置broker
+# BORKER_POOL_LIMIT = 0
+# CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+# CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend' # 配置backend
+
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1'
+CELERY_TASK_SERIALIZER = 'json'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -45,6 +61,9 @@ INSTALLED_APPS = [
     'channels',
     'test_websocket',
     'webssh',
+    'django_celery_beat',
+    'django_celery_results',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -133,7 +152,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -163,3 +182,7 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+JENKINS_SERVER = "127.0.0.1:8080"
+JENKINS_USER = "lixn"
+JENKINS_PASS = "lili0219"

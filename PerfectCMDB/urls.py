@@ -14,13 +14,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.conf.urls import url, include
+from api import urls as api_urls
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('cmdb/',include('cmdb.urls')),
-    path('tasks/',include('tasks.urls')),
-    path('monitor/',include('monitor.urls')),
-    path('chat/',include('test_websocket.urls')),
-    path('webssh/', include('webssh.urls')),
+    url(r'^api/',include(api_urls.router.urls)),
+    url('admin/', admin.site.urls),
+    url('cmdb/',include('cmdb.urls')),
+    url('tasks/',include('tasks.urls')),
+    url('monitor/',include('monitor.urls')),
+    url('chat/',include('test_websocket.urls')),
+    url('webssh/', include('webssh.urls')),
+    url(r'^api-auth/', include('rest_framework.urls')),
 ]

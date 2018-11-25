@@ -1,9 +1,10 @@
 from django.contrib import admin
-from django.urls import path
-from tasks.views import TaskCreate,TaskList,TaskDetail
+from django.conf.urls import url
+from tasks.views import TaskCreate,TaskList,TaskDetail,test
 
 urlpatterns = [
-    path('list/',TaskList.as_view()),
-    path('create/',TaskCreate.as_view()),
-    path('detail/<pk>/',TaskDetail.as_view())
+    url('test/',test),
+    url('list/',TaskList.as_view()),
+    url('create/',TaskCreate.as_view()),
+    url('detail/<pk>/',TaskDetail.as_view())
 ]

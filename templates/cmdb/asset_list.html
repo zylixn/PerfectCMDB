@@ -11,9 +11,15 @@
     <link href="{% static 'css/demo/nifty-demo-icons.min.css' %}" rel="stylesheet">
     <!--Demo [ DEMONSTRATION ]-->
     <link href="{% static 'css/demo/nifty-demo.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'xterm/xterm.css' %}"/>
 {% endblock %}
 
 {% block extra_js %}
+    <script src="{% static 'xterm/xterm.js' %}"></script>
+    <script src="{% static 'xterm/addons/fit/fit.js' %}"></script>
+    <script src="{% static 'xterm/addons/terminado/terminado.js' %}"></script>
+    <script src="{% static 'xterm/addons/fullscreen/fullscreen.js' %}"></script>
+    <script src="{% static 'jstree/jstree.js' %}"></script>
     <script>
         function chooseallornot(ele) {
             if($(ele).prop('checked')){
@@ -35,10 +41,12 @@
         }
 
     </script>
+
 {% endblock %}
 
 {% block content %}
     <div id="content-container">
+        <div id="term"></div>
         <div id="page-content">
             <div class="panel">
                 <div class="panel-heading">
@@ -117,7 +125,7 @@
                                     <tr>
                                         <th><div><input type="checkbox" id="asset_{{ asset.id }}" value="{{ asset.id }}"></div><div class="fht-cell"></div></th>
                                         {% build_table_row asset list_display model %}
-                                        <td><button class='label label-table label-info'>登录</button></td>
+                                        <td><button class='label label-table label-info'>详细</button></td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

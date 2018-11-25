@@ -1,6 +1,6 @@
-from django.urls import path
+from django.conf.urls import url
 from webssh.views import WebSSH
 
 urlpatterns = [
-    path(r'', WebSSH.as_view(), name="webssh"),
+    url(r'', WebSSH.as_view(), name="webssh"),
 ]

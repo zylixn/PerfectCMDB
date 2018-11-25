@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.urls import path
+from django.conf.urls import url
 from monitor.views import accpet_data
 
 urlpatterns = [
-    path('report/', accpet_data),
+    url('report/', accpet_data),
 ]
