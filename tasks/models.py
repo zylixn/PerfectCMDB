@@ -71,8 +71,9 @@ class TaskHost(models.Model):
         db_table = "task_host_relationship"
 
 class Template(models.Model):
-    name = models.CharField(max_length=64)
-    content = models.TextField()
+    name = models.CharField(max_length=64,verbose_name="模板名")
+    content = models.TextField(verbose_name="模板内容")
+    createtime = models.DateTimeField(verbose_name="创建时间",auto_now_add=True)
 
     def __str__(self):
         return self.name

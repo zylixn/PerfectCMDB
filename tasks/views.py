@@ -4,7 +4,7 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from tasks.models import Task,Template,TaskHost,TaskLog,ExecPlan
 from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
-from tasks.admin import TaskAdmin
+from tasks.admin import TaskAdmin, TemplateAdmin
 from cmdb.models import Asset
 from django.utils import timezone
 from tasks import forms as tasks_forms
@@ -14,12 +14,12 @@ from tasks import tasks
 from celery import group
 
 def test(request):
-    numbers = [(2, 2), (4, 4), (8, 8), (16, 16)]
-    res = group(tasks.add.s(i, j) for i, j in numbers).apply_async()
-    value = res.get()
-    print("value:%s"%value)
-    return HttpResponse("test")
-
+    print("It's a test start")
+    s = tasks.add.apply_async((2,2), queue="test_add")
+    result = s.get()
+    # result = tasks.getserverinfo()
+    print("It's a test end")
+    return HttpResponse("%s"%result)
 
 class TaskCreate(CreateView):
     form_class = tasks_forms.TaskForm
@@ -106,5 +106,65 @@ class TaskDetail(DetailView,CreateView):
         # print(self.queryset)
         form_obj = tasks_forms.TaskForm(instance=self.get_object())
         return render(request,self.template_name,{'form':form_obj})
+
+class TemplatesList(ListView):
+    model = Template
+    template_name = 'tasks/template_list.html'
+    # permission_required = 'cmdb.can_view_serverinfo'
+    raise_exception = True
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        filter_conditions = {}
+        sorted_column = None
+        context = super(TemplatesList, self).get_context_data(**kwargs)
+        querysets = Template.objects.get_queryset().order_by('id')
+        try:
+            querysets = utils.search_by(self.request, querysets, TemplateAdmin)
+            querysets, filter_conditions = utils.get_filter_result(self.request, querysets)
+            querysets, sorted_column = utils.get_orderby_result(self.request, querysets, TemplateAdmin)
+            paginator = Paginator(querysets, TemplateAdmin.list_per_page)
+            page = self.request.GET.get('page')
+            try:
+                querysets = paginator.page(page)
+            except PageNotAnInteger:
+                querysets = paginator.page(1)
+            except EmptyPage:
+                querysets = paginator.page(paginator.num_pages)
+        except Exception as e:
+            traceback.print_exc()
+        context['list_display1'] = []
+        context['tasks'] = querysets
+        context['sorted_column'] = sorted_column
+        context['model'] = Template
+        context['list_filter'] = TemplateAdmin.list_filter
+        for field in TemplateAdmin.list_display:
+            context['list_display1'].append(Template._meta.get_field(field).verbose_name)
+        context['list_display'] = TemplateAdmin.list_display
+        context['search_fields'] = TemplateAdmin.search_fields
+        context['filter_conditions'] = filter_conditions
+        print("list_display:",context['list_display'])
+        return context
+
+    def post(self,request):
+        error = {}
+        name = request.POST.get('name')
+        content = request.POST.get('content')
+        template = Template.objects.filter(name=name)
+        IDS = request.POST.get('IDS')
+        if not name and not IDS:
+            return HttpResponse("输入的信息错误，请重新输入")
+        elif IDS:
+            arr = IDS.split('-')
+            if arr:
+                Template.objects.filter(id__in=arr).delete()
+                return redirect("/tasks/templates/")
+        if not template:
+            obj = Template.objects.create(name=name,content=content)
+            obj.save()
+        else:
+            error['error'] = "名字为{name}的模板已存在".format(name=name)
+        print("*" * 10)
+        return redirect("/tasks/templates/")
+
 
 

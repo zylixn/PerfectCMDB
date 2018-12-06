@@ -27,6 +27,11 @@ CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1'
 CELERY_TASK_SERIALIZER = 'json'
+CELERY_ROUTES = {
+    'PerfectCMDB.tasks.collect_msg':{'queue':'collect_msg','routing_key':'collect_msg'},
+    'PerfectCMDB.tasks.cmd_cfg':{'queue':'cmd_cfg','routing_key':'cmd_cfg'},
+    'PerfectCMDB.tasks.async_call_script':{'queue':'async_call_script','routing_key':'async_call_script'},
+}
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -156,7 +161,9 @@ TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
-USE_L10N = True
+USE_L10N = False
+DATE_FORMAT = 'Y-m-d'
+DATETIME_FORMAT = 'Y-m-d H:i:s'
 
 USE_TZ = True
 

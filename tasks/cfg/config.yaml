@@ -1,0 +1,18 @@
+FTPConfig:
+  FTP_IP: 127.0.0.1
+  FTP_PORT: 22
+  FTP_User: slview
+  FTP_Pass: slview
+
+DB:
+  DB_Host: 127.0.0.1
+  DB_Port: 1521
+  DB_User: slview
+  DB_Pass: slview
+  DB_str: dbnms
+
+Server: 127.0.0.1
+
+
+
+

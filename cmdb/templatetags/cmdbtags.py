@@ -32,14 +32,14 @@ def build_table_row(obj,list_display,model):
                 column_data = getattr(obj,'get_%s_display'%column_name)()
             else:
                 column_data = getattr(obj,column_name)
-            td_ele = "<td>%s</td>"%column_data
+            td_ele = "<td class='text-center'>%s</td>"%column_data
             if index == 0:
-                td_ele = "<td><a href='%s/change/'>%s</a></td>"%(obj.id,column_data)
+                td_ele = "<td class='text-center'><a href='%s/change/'>%s</a></td>"%(obj.id,column_data)
             ele += td_ele
         # else:
         #     ele += "<td><button class='label label-table label-info'>登录</button></td>"
     else:
-        ele += "<td><a href='%s/change/'>%s</a></td>"%(obj.id,obj)
+        ele += "<td class='text-center'><a href='%s/change/'>%s</a></td>"%(obj.id,obj)
     return mark_safe(ele)
 
 @register.simple_tag
@@ -98,14 +98,15 @@ def options(model,field):
         for queryset in querysets:
             choices.append({queryset[0]:queryset[1]})
     elif hasattr(model,field):
-        querysets = getattr(model,field).get_queryset()
-        print("querysets3:", querysets)
-        # if hasattr(obj,'get_queryset'):
-        #     querysets = getattr(obj,'get_queryset')()
-        for queryset in querysets:
-            choices.append({queryset.id:queryset.name})
-    print("choices:",choices)
-    return choices
+        try:
+            querysets = getattr(model,field).get_queryset()
+            for queryset in querysets:
+                choices.append({queryset.id:queryset.name})
+            print("choices:", choices)
+            return choices
+        except AttributeError as e:
+            return []
+
 
 @register.simple_tag
 def get_current_sort_index(sorted_column):

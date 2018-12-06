@@ -12,7 +12,10 @@ class ExecPlanAdmin(admin.ModelAdmin):
     list_display = ('name','execplan')
 
 class TemplateAdmin(admin.ModelAdmin):
-    list_display = ('name','content')
+    list_display = ('name','content','createtime')
+    list_filter = ('name',)
+    list_per_page = 5
+    search_fields = ('name',)
 
 admin.site.register(models.ExecPlan,ExecPlanAdmin)
 admin.site.register(models.Task,TaskAdmin)

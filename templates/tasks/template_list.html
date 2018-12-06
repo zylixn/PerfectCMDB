@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load cmdbtags %}
+
+{% block title %}
+原子能力
+{% endblock %}
+
+{% block extra_css %}
+    <!--Nifty Premium Icon [ DEMONSTRATION ]-->
+    <link href="{% static 'css/demo/nifty-demo-icons.min.css' %}" rel="stylesheet">
+    <!--Demo [ DEMONSTRATION ]-->
+    <link href="{% static 'css/demo/nifty-demo.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/jquery.validate.min.js"></script>
+    <script>
+
+        $(document).ready(function(){
+          $('.ui.modal').modal(show);
+        });
+
+        function chooseallornot(ele) {
+            if($(ele).prop('checked')){
+                $(":checkbox").prop("checked",true);
+            } else {
+                $(":checkbox").prop("checked",false);
+            }
+        }
+
+        function delete_choose() {
+            arr = [];
+            $.each($("input[type='checkbox']:checked"),function (i,val) {
+                id = val.value;
+                if (Number(id)){
+                   arr.push(val.value);
+                }
+            });
+            datastr = arr.join('-');
+            $("#ids").prop("value",datastr);
+        }
+
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div id="content-container">
+        <div id="page-content">
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3 class="panel-title">原子能力</h3>
+                </div>
+
+                <!--Data Table-->
+                <!--===================================================-->
+                <div class="panel-body">
+                    <div class="pad-btm form-inline">
+                        <div class="row">
+                            <div class="col-sm-8 table-toolbar-left">
+                                <button id="demo-btn-addrow" class="btn btn-purple" type="button" data-toggle="modal" data-target="#exampleModal">
+                                    <i class="demo-pli-add"></i> 添加
+                                </button>
+
+                            </div>
+                            <div class="col-sm-4 table-toolbar-right">
+                                <form class="form-group">
+                                    <input id="demo-input-search2" type="text" placeholder="请输入搜索任务名称" class="form-control" autocomplete="off" name="_q">
+                                    <button class="btn btn-info" type="submit">查询</button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="text-center"><div class="th-inner "><input type="checkbox" id="head_input" onclick="chooseallornot(this);"></div><div class="fht-cell"></div></th>
+                                    {% for field in list_display1 %}
+                                        <th class="text-center">{{ field }}</th>
+                                    {% endfor %}
+                                    <th class="text-center">opertype</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in tasks %}
+                                    <tr>
+                                        <th class="text-center"><div><input type="checkbox" id="asset_{{ task.id }}" value="{{ task.id }}"></div><div class="fht-cell"></div></th>
+                                        {% build_table_row task list_display model %}
+                                        <td class="text-center"><button id="demo-btn-addrow-{{ task.id }}" class="btn btn-purple" type="button" data-toggle="modal"
+                                                                        data-target="#exampleModal_detail" data-whatever="{{ task.name }}:{{ task.content }}">
+                                            查看详细
+                                        </button></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr>
+                    <form method="post" onsubmit="delete_choose()">
+                        {% csrf_token %}
+                        <input type="hidden" id="ids" name="IDS">
+                        <span><button id="demo-btn-addrow" class="btn btn-purple" type="submit"><i class="demo-pli-remove"></i> 删除</button></span>
+                    </form>
+                    <div class="pull-right">
+                        {% render_paginator tasks filter_conditions sorted_column %}
+                    </div>
+                </div>
+                <!--===================================================-->
+                <!--End Data Table-->
+
+            </div>
+        </div>
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">×</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">新增原子能力</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="recipient-name" class="control-label">名称:</label>
+                                <input type="text" class="form-control" id="recipient-name" name="name">
+                            </div>
+                            <div class="form-group">
+                                <label for="message-text" class="control-label">内容:</label>
+                                <textarea class="form-control" name="content" id="message-text" rows="16" style="min-width: 90%">
+
+                                </textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="submit" class="btn btn-primary" onsubmit="validform(this)">确定</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {#    详细页    #}
+        <div class="modal fade" id="exampleModal_detail" tabindex="-1" role="dialog" aria-labelledby="exampleModal_detail">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">×</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">原子能力</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="recipient-name" class="control-label">名称:</label>
+                                <input type="text" class="form-control" id="recipient-name" name="name">
+                            </div>
+                            <div class="form-group">
+                                <label for="message-text" class="control-label">内容:</label>
+                                <textarea class="form-control" name="content" id="message-text" rows="16" style="min-width: 90%">
+
+                                </textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('#exampleModal_detail').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);// 触发事件的按钮
+            var str = button.data('whatever');// 解析出data-whatever内容
+            var patt1=new RegExp("([\u4e00-\u9fa5a-zA-Z0-9]+):([\u4e00-\u9fa5a-zA-Z0-9]+)");
+            var arr = patt1.exec(str);
+            var modal = $(this);
+            {#alert(str);#}
+            {#alert(arr);#}
+            modal.find('.modal-body input').val(arr[1]);
+            modal.find('.modal-body textarea').val(arr[2]);
+        });
+    </script>
+{% endblock %}
