@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cmdb',
     'kingadmin',
-    'autodeploy',
+    #'autodeploy',
     'monitor',
     'tasks',
     'channels',

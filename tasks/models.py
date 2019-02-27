@@ -71,8 +71,34 @@ class TaskHost(models.Model):
         db_table = "task_host_relationship"
 
 class Template(models.Model):
+    """
+    原子能力
+    """
     name = models.CharField(max_length=64)
     content = models.TextField()
 
     def __str__(self):
         return self.name
+"""
+class Busicomposer(models.Model):
+    composerid = models.PositiveIntegerField()
+    composername = models.CharField(max_length=64,null=False,blank=False)
+    createuser = models.CharField(max_length=64)
+    createtime = models.DateField(default=timezone.now)
+    updatetime = models.DateTimeField(default=timezone.now)
+    ispublished_choices = (
+        (0,"N"),
+        (1,"Y")
+    )
+    ispublished = models.SmallIntegerField(choices=ispublished_choices,default=0)
+    publishuser = models.CharField(max_length=64)
+
+
+    def __str__(self):
+        return self.composername
+
+    class Meta:
+        db_table = "busicomposer"
+"""
+
+
