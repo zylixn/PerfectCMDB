@@ -1,1 +1,64 @@
 {% extends 'base.html' %}
+{% load cmdbtags %}
+{% block title %}
+	首页
+{% endblock %}
+{% block extra_css %}
+	<link rel="stylesheet" href="http://static.runoob.com/assets/js/jquery-treeview/jquery.treeview.css" />
+	<link rel="stylesheet" href="http://static.runoob.com/assets/js/jquery-treeview/screen.css" />
+{% endblock %}
+{% block extra_js %}
+	<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="http://static.runoob.com/assets/js/jquery-treeview/jquery.cookie.js"></script>
+	<script src="http://static.runoob.com/assets/js/jquery-treeview/jquery.treeview.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("#browser").treeview({
+				toggle: function() {
+					console.log("%s was toggled.", $(this).find(">span").text());
+				}
+			});
+			//阻止浏览器默认右键点击事件
+			$("#browser").bind("contextmenu", function(){
+				return false;
+			});
+			 $("#browser").mousedown(function(e) {
+				console.log(e.which);
+				//右键为3
+				if (3 == e.which) {
+					$(this).css({
+						"font-size": "-=3px"
+					});
+				} else if (1 == e.which) {
+					//左键为1
+					$(this).css({
+						"font-size": "+=3px"
+					});
+				}
+			});
+		});
+	</script>
+{% endblock %}
+{% block content %}
+
+	<div id="content-container">
+		<div class="row">
+			<div class="col-md-3 col-sm-offset-1">
+				<h1 id="banner">服务器列表</h1>
+				<ul id="browser" class="filetree treeview-famfamfam">
+					{% get_groups_and_hosts request.user as groups_and_hosts %}
+					{% for group,hosts in groups_and_hosts.items %}
+						<li><span class="folder">{{ group }}</span>
+							<ul>
+								{% for host in hosts %}
+									<li id="asset_{{ host.id }}"><span class="file">{{ host.management_ip }}</span></li>
+								{% endfor %}
+
+							</ul>
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+{% endblock %}

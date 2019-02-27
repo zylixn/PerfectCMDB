@@ -70,7 +70,7 @@ class Role(models.Model):
     def __str__(self):
         return self.name
     class Meta:
-        verbose_name_plural = "角色"
+        db_table = "role"
 
 class MyUserManager(BaseUserManager):
     def create_user(self, email, password=None):
@@ -140,6 +140,10 @@ class UserProfile(AbstractBaseUser):
         # Simplest possible answer: All admins are staff
         return self.is_admin
 
+    class Meta:
+        #db_table = "userprofile"
+        pass
+
 class ServerInfor(models.Model):
     name = models.CharField(max_length=40, verbose_name=_('Server name'), blank=False, unique=True)
     hostname = models.CharField(max_length=40, verbose_name=_('Host name'), blank=True)
@@ -152,6 +156,7 @@ class ServerInfor(models.Model):
         return self.name
 
     class Meta:
+        db_table = "serverinfor"
         unique_together = (("ip", "credential"),)
         permissions = (
             ("can_add_serverinfo", _("Can add server")),
@@ -174,6 +179,7 @@ class ServerGroup(models.Model):
         return self.name
 
     class Meta:
+        db_table = "servergroup"
         permissions = (
             ("can_add_servergroup", _("Can add group")),
             ("can_change_servergroup", _("Can change group info")),
@@ -233,6 +239,7 @@ class Credential(models.Model):
                         _('If you choose auth proxy,You must fill in proxyserverip and proxyport field !'))
 
     class Meta:
+        #db_table = "credential"
         permissions = (
             ("can_add_credential", _("Can add credential")),
             ("can_change_credential", _("Can change credential info")),
@@ -258,6 +265,10 @@ class AssetGroup(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        #db_table = "assetgroup"
+        pass
 
 class Asset(models.Model):
     asset_type_choices = (
@@ -310,8 +321,7 @@ class Asset(models.Model):
             ("other_do_asset", "Can other_do asset"),  # 执行其它操作，如ES节点索引
         )
 
-        verbose_name = '资产总表'
-        verbose_name_plural = "资产总表"
+        #db_table = "asset"
 
     def __str__(self):
         return '%s#%s'%(self.name,self.management_ip)
@@ -390,9 +400,8 @@ class Server(models.Model):
     os_release = models.CharField(u'操作系统版本', max_length=64, blank=True, null=True)
 
     class Meta:
-        verbose_name = '服务器'
-        verbose_name_plural = "服务器"
-        # together = ["sn", "asset"]
+        #db_table = "server"
+        pass
 
     def __str__(self):
         return '%s sn:%s' % (self.asset.name, self.asset.sn)
@@ -410,6 +419,9 @@ class SecurityDevice(models.Model):
 
     def __str__(self):
         return self.asset.id
+
+    class Meta:
+        db_table = "securitydevice"
 
 class NetworkDevice(models.Model):
     """网络设备"""
@@ -433,8 +445,7 @@ class NetworkDevice(models.Model):
     device_detail = models.TextField(u'设置详细配置', null=True, blank=True)
 
     class Meta:
-        verbose_name = '网络设备'
-        verbose_name_plural = "网络设备"
+        db_table = "networkdevice"
 
 class Software(models.Model):
     '''
@@ -464,8 +475,7 @@ class Software(models.Model):
         return self.version
 
     class Meta:
-        verbose_name = '软件/系统'
-        verbose_name_plural = "软件/系统"
+        db_table = "software"
 
 class CPU(models.Model):
     """CPU组件"""
@@ -479,8 +489,7 @@ class CPU(models.Model):
     update_date = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        verbose_name = 'CPU部件'
-        verbose_name_plural = "CPU部件"
+        pass
 
     def __str__(self):
         return self.cpu_model
@@ -501,8 +510,6 @@ class RAM(models.Model):
         return '%s:%s:%s' % (self.asset_id, self.slot, self.capacity)
 
     class Meta:
-        verbose_name = 'RAM'
-        verbose_name_plural = "RAM"
         unique_together = ("asset", "slot")
 
     auto_create_fields = ['sn', 'slot', 'model', 'capacity']
@@ -532,8 +539,6 @@ class Disk(models.Model):
 
     class Meta:
         unique_together = ("asset", "slot")
-        verbose_name = '硬盘'
-        verbose_name_plural = "硬盘"
 
     def __str__(self):
         return '%s:slot:%s capacity:%s' % (self.asset_id, self.slot, self.capacity)
@@ -557,8 +562,6 @@ class NIC(models.Model):
         return '%s:%s' % (self.asset_id, self.macaddress)
 
     class Meta:
-        verbose_name = u'网卡'
-        verbose_name_plural = u"网卡"
         # unique_together = ("asset_id", "slot")
         unique_together = ("asset", "macaddress")
 

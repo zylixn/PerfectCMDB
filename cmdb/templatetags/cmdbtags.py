@@ -120,3 +120,14 @@ def get_selected_option(filter_condition,field,choice):
             return 'selected'
     return
 
+@register.simple_tag()
+def get_groups_and_hosts(username):
+    groupandhost = {}
+    groups = models.AssetGroup.objects.all()
+    for group in groups:
+        groupandhost[group.name] = list()
+        hosts = group.asset_set.all()
+        list(map(lambda x:groupandhost[group.name].append(x),hosts))
+    return groupandhost
+
+
